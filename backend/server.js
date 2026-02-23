@@ -1,14 +1,20 @@
-const express = require("express")
-const mongoose = require("mongoose")
 const dotenv = require("dotenv")
-const cors = require("cors")
-
 dotenv.config()
+
+const express = require("express")
+const connectDB = require("./config/db")
+const cors = require("cors")
+const productRoutes = require("./routes/productRoutes")
+const { errorHandler } = require("./middleware/errorMiddleware")
+
+
+//connect to db
+connectDB()
 
 const app = express()
 
 //middleware
-app.use(cors)
+app.use(cors())
 app.use(express.json())
 
 //test route
@@ -16,13 +22,11 @@ app.get("/", (req, res) => {
     res.send("API is running...")
 })
 
+//routes
+app.use("/api/products", productRoutes)
 
-//connect to mongoos
-mongoose.connect(process.env.MONGO_URI, {
-    family: 4
-})
-.then(() => console.log('MongoDB connected!'))
-.catch(err => console.error('DB connection error', err))
+//error middleware(last)
+app.use(errorHandler)
 
 
 //start server
